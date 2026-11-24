@@ -11,3 +11,6 @@ chunk: 46
 pipeline: tests/example_pipeline.cppipe
 location: /example/location
 commands location: /home/user
+
+cmd_load_conda: 'source path/to/miniforge/bin/activate'
+cmd_activate_cellprofiler: 'conda activate cellprofiler'

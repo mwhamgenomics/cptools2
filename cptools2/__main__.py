@@ -67,11 +67,8 @@ def make_scripts(config_file):
     """
     yaml_dict = parse_yaml.open_yaml(config_file)
     config = parse_yaml.parse_config_file(config_file)
-    commands_location = config.create_command_args["commands_location"]
-    commands_line_count = generate_scripts.lines_in_commands(commands_location)
     logfile_location = os.path.join(yaml_dict["location"], "logfiles")
-    generate_scripts.make_qsub_scripts(commands_location, commands_line_count,
-                                       logfile_location=logfile_location)
+    generate_scripts.make_qsub_scripts(config, logfile_location=logfile_location)
 
 
 def main():

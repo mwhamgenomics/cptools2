@@ -51,6 +51,8 @@ There are configuration details you can add to a job:
     - `experiment` : path to another ImageXpress experiment
     - `plates` : plate name(s) in the above experiment
 - `new_ix`: if true/yes then will treat filepaths as from the new ImageXpress
+- `cmd_load_conda`: alternate command for loading Conda. Default: 'module load miniforge/24.7.1'
+- `cmd_activate_cellprofiler`: alternate command for loading CellProfiler. Default: 'source activate cellprofiler'
 
 i.e we could remove some plates from an experiment, and also include some plates from a different experiment
 
@@ -104,6 +106,13 @@ pipeline : /path/to/cellprofiler/pipeline.cppipe
 location : /path/to/scratch/space
 commands location : /home/user
 new_ix: true
+```
+
+If you have a different installation of CellProfiler, or if Eddie's modules are updated and the defaults no longer work, you can override these options:
+
+```yaml
+cmd_load_conda: 'module load miniforge/24.11.3-2'
+cmd_activate_cellprofiler: 'conda activate path/to/your/cellprofiler_env'
 ```
 
 

@@ -77,29 +77,30 @@ def lines_in_commands(commands_location):
     return _lines_in_commands(**command_paths)
 
 
-def load_module_text():
+def load_module_text(config_dependencies):
     """returns load module commands"""
+
+    module_load_cmd = config_dependencies.get('load_conda', 'module load miniforge/24.7.1')
+    cellprofiler_activate_cmd = config_dependencies.get('activate_cellprofiler', 'source activate cellprofiler')
     return textwrap.dedent(
-        """
-        module load miniforge/24.7.1
-        source activate cellprofiler
+        f"""
+        {module_load_cmd}
+        {cellprofiler_activate_cmd}
         """
     )
 
 
-def make_qsub_scripts(commands_location, commands_count_dict, logfile_location):
+def make_qsub_scripts(config, logfile_location):
     """
     Create and save qsub submission scripts in the same location as the
     commands.
 
     Parameters:
     -----------
-    commands_location: string
-        path to directory that contains staging, cp_commands, and destaging
+    config: namedtuple
+        config object containing custom dependency loading and the path
+        of the folder containing the staging, cp_commands, and destaging
         command files.
-
-    commands_count_dict: dictionary
-        dictionary of the number of commands contain in each of the jobs
 
     logfile_location: string
         where to store the log files. By default this will store them
@@ -110,6 +111,9 @@ def make_qsub_scripts(commands_location, commands_count_dict, logfile_location):
     ---------
     Nothing, writes files to `commands_location`
     """
+    commands_location = config.create_command_args["commands_location"]
+    commands_count_dict = lines_in_commands(commands_location)
+
     cmd_path = make_command_paths(commands_location)
     time_now = datetime.now().replace(microsecond=0)
     time_now = str(time_now).replace(" ", "-")
@@ -142,7 +146,7 @@ def make_qsub_scripts(commands_location, commands_count_dict, logfile_location):
         memory="12G",
         output=os.path.join(logfile_location, "analysis")
     )
-    analysis_script += load_module_text()
+    analysis_script += load_module_text(config.dependencies)
     analysis_script.loop_through_file(cmd_path["cp_commands"])
     analysis_loc = os.path.join(commands_location,
                                 "{}_analysis_script.sh".format(time_now))
@@ -276,4 +280,3 @@ class BodgeScript(script_generator.AnalysisScript):
             """.format(phase=phase, input_file=input_file)
         )
         self.template += text
-

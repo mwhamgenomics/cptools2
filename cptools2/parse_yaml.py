@@ -190,6 +190,26 @@ def create_commands(yaml_dict):
             "job_size"          : chunk_arg}
 
 
+def dependencies(yaml_dict):
+    """
+    Get arguments for loading custom modules or Conda environments in analysis_script.sh
+
+    Parameters:
+    -----------
+    yaml_dict: dict
+        loaded yaml content
+
+    Returns:
+    --------
+    dict
+    """
+    return {
+        key.replace('cmd_', ''): yaml_dict[key]
+        for key in ('cmd_load_conda', 'cmd_activate_cellprofiler')
+        if key in yaml_dict
+    }
+
+
 def check_yaml_args(yaml_dict):
     """
     check the validity of the yaml arguments
@@ -213,7 +233,9 @@ def check_yaml_args(yaml_dict):
                   "commands location",
                   "remove plate",
                   "add plate",
-                  "new_ix"]
+                  "new_ix",
+                  "cmd_load_conda",
+                  "cmd_activate_cellprofiler"]
     bad_arguments = []
     for argument in yaml_dict.keys():
         if argument not in valid_args:
@@ -241,17 +263,19 @@ def parse_config_file(config_file):
         config.add_plate_args      : dict
         config.create_command_args : dict
         config.is_new_ix           : bool
+        config.dependencies:       : dict
     """
     yaml_dict = open_yaml(config_file)
     # check the arguments in the yaml file are recognised
     check_yaml_args(yaml_dict)
     # create namedtuple to store the configuration dictionaries
     names = ["experiment_args", "chunk_args", "add_plate_args",
-             "remove_plate_args", "create_command_args", "is_new_ix"]
+             "remove_plate_args", "create_command_args", "is_new_ix", "dependencies"]
     config = namedtuple("config", names)
     return config(experiment_args=experiment(yaml_dict),
                   chunk_args=chunk(yaml_dict),
                   remove_plate_args=remove_plate(yaml_dict),
                   add_plate_args=add_plate(yaml_dict),
                   create_command_args=create_commands(yaml_dict),
-                  is_new_ix=is_new_ix(yaml_dict))
+                  is_new_ix=is_new_ix(yaml_dict),
+                  dependencies=dependencies(yaml_dict))

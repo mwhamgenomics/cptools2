@@ -7,6 +7,7 @@ TEST_PATH = os.path.join(CURRENT_PATH, "test_config.yaml")
 TEST_PATH2 = os.path.join(CURRENT_PATH, "test_config2.yaml")
 TEST_BROKEN = os.path.join(CURRENT_PATH, "test_config_broken.yaml")
 
+
 def test_open_yaml():
     """cptools2.parse_yaml.open_yaml(path_to_yaml)"""
     yaml_dict = parse_yaml.open_yaml(TEST_PATH)
@@ -71,3 +72,10 @@ def test_new_ix():
     assert parse_yaml.parse_config_file(TEST_PATH).is_new_ix == False
     assert parse_yaml.parse_config_file(TEST_PATH2).is_new_ix == True
 
+
+def test_dependencies():
+    assert parse_yaml.parse_config_file(TEST_PATH).dependencies == {
+        'load_conda': 'source path/to/miniforge/bin/activate',
+        'activate_cellprofiler': 'conda activate cellprofiler'
+    }
+    assert parse_yaml.parse_config_file(TEST_PATH2).dependencies == {}
